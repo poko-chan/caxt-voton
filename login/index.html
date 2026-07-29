@@ -119,7 +119,7 @@
                 await signInWithEmailAndPassword(auth, email, password);
                 showAlert("ログインに成功しました。リダイレクト中...", false);
                 setTimeout(() => {
-                    window.location.href = "../chat/index.html"; 
+                    window.location.href = "/dashboard"; 
                 }, 1000);
             } catch (error) {
                 showAlert("エラー: メールアドレスまたはパスワードが正しくありません。");
@@ -133,7 +133,7 @@
             document.body.style.opacity = '0';
             document.body.style.transition = 'opacity 0.25s ease-in-out';
             setTimeout(() => {
-                window.location.href = "../signup/index.html";
+                window.location.href = "/signup";
             }, 250);
         };
     </script>
