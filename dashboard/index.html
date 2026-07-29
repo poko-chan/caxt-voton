@@ -25,18 +25,84 @@
             border-color: rgba(56, 189, 248, 0.3);
             box-shadow: 0 10px 30px -10px rgba(56, 189, 248, 0.1);
         }
+        /* サイドバーの開閉トランジション */
+        #sidebar {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
     </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white">
+<body class="text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white relative overflow-x-hidden">
 
-    <header class="glass-panel border-b border-slate-800/80 sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-lg shadow-cyan-500/20">
-                V
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 hidden transition-opacity"></div>
+
+    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-72 glass-panel border-r border-slate-800 z-50 transform -translate-x-full flex flex-col justify-between p-6 shadow-2xl">
+        <div>
+            <div class="flex items-center justify-between pb-6 border-b border-slate-800/80 mb-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-base shadow-lg shadow-cyan-500/20">
+                        V
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-extrabold text-white tracking-tight">Voton caxt</h2>
+                        <span class="text-[10px] text-cyan-400 font-mono tracking-wider uppercase">Navigation Menu</span>
+                    </div>
+                </div>
+                <button onclick="toggleSidebar()" class="p-2 rounded-xl bg-slate-800/80 text-slate-400 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
-            <div>
-                <h1 class="text-base font-extrabold tracking-tight text-white">Voton caxt</h1>
-                <p class="text-[10px] text-cyan-400 font-mono tracking-wider uppercase">Dashboard Environment</p>
+
+            <nav class="space-y-1.5">
+                <a href="../dashboard/index.html" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span>ダッシュボード / Dashboard</span>
+                </a>
+                <a href="../chat/index.html" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white text-xs font-semibold transition-all">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <span>チャットルーム / Chat</span>
+                </a>
+                <a href="../friends/index.html" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white text-xs font-semibold transition-all">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <span>フレンド一覧 / Friends</span>
+                </a>
+                <a href="../profile/index.html" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white text-xs font-semibold transition-all">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span>プロフィール設定 / Profile</span>
+                </a>
+                <a href="../settings/index.html" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white text-xs font-semibold transition-all">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span>システム設定 / Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800/80">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-cyan-400 text-xs" id="sidebar-avatar-initial">U</div>
+                <div class="overflow-hidden">
+                    <p id="sidebar-displayname" class="text-xs font-bold text-white truncate">読み込み中...</p>
+                    <p id="sidebar-email" class="text-[10px] text-slate-400 truncate">...</p>
+                </div>
+            </div>
+            <button onclick="handleLogout()" class="w-full bg-slate-800/80 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 border border-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5">
+                <span>ログアウト / Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <header class="glass-panel border-b border-slate-800/80 sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <button onclick="toggleSidebar()" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-750 border border-slate-700 text-slate-300 hover:text-white transition-all flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-lg shadow-cyan-500/20">
+                    V
+                </div>
+                <div>
+                    <h1 class="text-base font-extrabold tracking-tight text-white">Voton caxt</h1>
+                    <p class="text-[10px] text-cyan-400 font-mono tracking-wider uppercase">Dashboard Environment</p>
+                </div>
             </div>
         </div>
         
@@ -45,7 +111,7 @@
                 <span id="user-displayname" class="text-xs font-bold text-white">読み込み中...</span>
                 <span id="user-email" class="text-[10px] text-slate-400">...</span>
             </div>
-            <button onclick="handleLogout()" class="bg-slate-800/80 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 border border-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5">
+            <button onclick="handleLogout()" class="bg-slate-800/80 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 border border-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold transition-all hidden sm:flex items-center space-x-1.5">
                 <span>ログアウト / Logout</span>
             </button>
         </div>
@@ -128,10 +194,24 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // サイドバー開閉制御
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const isOpen = sidebar.style.transform === 'translateX(0px)';
+
+            if (isOpen) {
+                sidebar.style.transform = 'translateX(-100%)';
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.style.transform = 'translateX(0px)';
+                overlay.classList.remove('hidden');
+            }
+        };
+
         // 認証状態の監視とユーザー情報の取得
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                // ログインしていなければログイン画面へリダイレクト
                 window.location.href = "../login/index.html";
                 return;
             }
@@ -140,18 +220,26 @@
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    document.getElementById('user-displayname').textContent = userData.displayName || "ユーザー";
+                    const name = userData.displayName || "ユーザー";
+                    
+                    document.getElementById('user-displayname').textContent = name;
                     document.getElementById('user-email').textContent = user.email;
-                    document.getElementById('welcome-title').textContent = `おかえりなさい、${userData.displayName}さん！`;
+                    document.getElementById('welcome-title').textContent = `おかえりなさい、${name}さん！`;
+                    
+                    document.getElementById('sidebar-displayname').textContent = name;
+                    document.getElementById('sidebar-email').textContent = user.email;
+                    document.getElementById('sidebar-avatar-initial').textContent = name.charAt(0).toUpperCase();
                 } else {
                     document.getElementById('user-displayname').textContent = user.email;
                     document.getElementById('user-email').textContent = user.email;
+                    document.getElementById('sidebar-displayname').textContent = user.email;
+                    document.getElementById('sidebar-email').textContent = user.email;
+                    document.getElementById('sidebar-avatar-initial').textContent = user.email.charAt(0).toUpperCase();
                 }
             } catch (error) {
                 console.error("ユーザー情報の取得に失敗しました:", error);
             }
 
-            // ルーム一覧の読み込み
             loadRooms();
         });
 
@@ -206,7 +294,7 @@
             }
         };
 
-        // ルーム一覧をFirestoreから取得して表示
+        // ルーム一覧の取得と表示
         async function loadRooms() {
             const grid = document.getElementById('rooms-grid');
             try {
@@ -261,7 +349,6 @@
             }
         }
 
-        // XSS対策の簡易エスケープ
         function escapeHtml(str) {
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
