@@ -222,7 +222,7 @@
         };
 
         window.goToLogin = function() {
-            window.location.href = "../login/index.html";
+            window.location.href = "/login";
         };
 
         function showAlert(message, isError = true) {
@@ -272,7 +272,7 @@
 
                 showAlert("アカウント作成完了！リダイレクト中... / Success!", false);
                 setTimeout(() => {
-                    window.location.href = "../chat/index.html";
+                    window.location.href = "/dashboard";
                 }, 1000);
             } catch (error) {
                 showAlert("登録エラー / Error: " + error.message);
