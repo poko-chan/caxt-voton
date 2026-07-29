@@ -199,7 +199,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, addDoc, getDocs, deleteDoc, updateDoc, query, where, serverTimestamp, or } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, addDoc, getDocs, deleteDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBleGBlEcKLXIpbG3QX5U-PKn5r6LyelrM",
@@ -219,7 +219,6 @@
         let currentUsername = null;
         let currentDisplayName = null;
 
-        // サイドバー開閉制御
         window.toggleSidebar = function() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
@@ -239,10 +238,9 @@
             box.className = `mb-6 p-4 rounded-2xl text-xs font-medium border ${isError ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'}`;
             box.textContent = message;
             box.classList.remove('hidden');
-            setTimeout(() => { box.classList.add('hidden'); }, 4000);
+            setTimeout(() => { box.classList.add('hidden'); }, 5000);
         }
 
-        // タブ切り替え
         window.switchTab = function(tabName) {
             const friendsTab = document.getElementById('tab-friends-btn');
             const requestsTab = document.getElementById('tab-requests-btn');
@@ -266,7 +264,6 @@
             }
         };
 
-        // 認証状態の監視
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = "../login/";
@@ -303,7 +300,6 @@
             loadRequests();
         });
 
-        // ログアウト処理
         window.handleLogout = async function() {
             try {
                 await signOut(auth);
@@ -313,7 +309,6 @@
             }
         };
 
-        // モーダルの開閉
         window.openAddFriendModal = function() {
             document.getElementById('add-friend-modal').classList.remove('hidden');
             document.getElementById('add-friend-modal').classList.add('flex');
@@ -324,7 +319,6 @@
             document.getElementById('add-friend-modal').classList.add('hidden');
         };
 
-        // フレンド申請送信機能（ユーザー名完全一致エラー対応）
         window.handleSendFriendRequest = async function(event) {
             event.preventDefault();
             const targetUsername = document.getElementById('target-username').value.trim();
@@ -341,13 +335,12 @@
                     return;
                 }
 
-                // usersコレクションから正確なユーザー名で検索
                 const usersRef = collection(db, "users");
                 const q = query(usersRef, where("username", "==", targetUsername));
                 const querySnapshot = await getDocs(q);
 
                 if (querySnapshot.empty) {
-                    showAlert(`エラー: ユーザー名 "${targetUsername}" は存在しません。大文字・小文字を確認してください。`);
+                    showAlert(`エラー: ユーザー名 "${targetUsername}" は存在しません。プロフィール設定でユーザー名が正しく設定されているかご確認ください。`);
                     return;
                 }
 
@@ -355,7 +348,6 @@
                 const targetUid = targetUserDoc.id;
                 const targetData = targetUserDoc.data();
 
-                // 既にフレンドになっているかチェック
                 const friendsRef = collection(db, "friends");
                 const friendCheckQ1 = query(friendsRef, where("ownerUid", "==", currentUserUid), where("friendUid", "==", targetUid));
                 const friendCheckSnap1 = await getDocs(friendCheckQ1);
@@ -365,18 +357,7 @@
                     return;
                 }
 
-                // すでに申請中（自分から相手、または相手から自分）ではないかチェック
                 const requestsRef = collection(db, "friendRequests");
-                const reqCheckQ = query(
-                    requestsRef,
-                    where("status", "==", "pending"),
-                    or(
-                        and(where("senderUid", "==", currentUserUid), where("receiverUid", "==", targetUid)),
-                        and(where("senderUid", "==", targetUid), where("receiverUid", "==", currentUserUid))
-                    )
-                );
-                
-                // Firestoreのor/andクエリの簡易対応として個別に確認
                 const reqSnap1 = await getDocs(query(requestsRef, where("senderUid", "==", currentUserUid), where("receiverUid", "==", targetUid), where("status", "==", "pending")));
                 const reqSnap2 = await getDocs(query(requestsRef, where("senderUid", "==", targetUid), where("receiverUid", "==", currentUserUid), where("status", "==", "pending")));
 
@@ -385,7 +366,6 @@
                     return;
                 }
 
-                // friendRequestsコレクションに申請データを保存（通知機能のトリガー）
                 await addDoc(collection(db, "friendRequests"), {
                     senderUid: currentUserUid,
                     senderName: currentDisplayName,
@@ -407,10 +387,6 @@
             }
         };
 
-        // 補助用の簡易クエリ判定関数
-        function and(a, b) { return a; }
-
-        // フレンド一覧の参照と表示
         async function loadFriends() {
             const grid = document.getElementById('friends-grid');
             try {
@@ -440,11 +416,11 @@
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-bold text-sm">
-                                    ${escapeHtml(friend.friendName.charAt(0).toUpperCase())}
+                                    ${escapeHtml((friend.friendName || 'U').charAt(0).toUpperCase())}
                                 </div>
                                 <span class="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full border border-cyan-500/20 uppercase tracking-widest">Connected</span>
                             </div>
-                            <h4 class="text-base font-bold text-white mb-0.5">${escapeHtml(friend.friendName)}</h4>
+                            <h4 class="text-base font-bold text-white mb-0.5">${escapeHtml(friend.friendName || 'ユーザー')}</h4>
                             <p class="text-xs text-slate-400 font-mono mb-4">@${escapeHtml(friend.friendUsername || 'username')}</p>
                         </div>
                         <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
@@ -469,7 +445,6 @@
             }
         }
 
-        // 受信したフレンド申請の読み込みと表示（通知機能）
         async function loadRequests() {
             const grid = document.getElementById('requests-grid');
             const badge = document.getElementById('request-badge');
@@ -507,11 +482,11 @@
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <div class="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 font-bold text-sm">
-                                    ${escapeHtml(req.senderName.charAt(0).toUpperCase())}
+                                    ${escapeHtml((req.senderName || 'U').charAt(0).toUpperCase())}
                                 </div>
                                 <span class="text-[10px] font-mono text-pink-400 bg-pink-500/10 px-2.5 py-1 rounded-full border border-pink-500/20 uppercase tracking-widest animate-pulse">申請あり / Request</span>
                             </div>
-                            <h4 class="text-base font-bold text-white mb-0.5">${escapeHtml(req.senderName)}</h4>
+                            <h4 class="text-base font-bold text-white mb-0.5">${escapeHtml(req.senderName || 'ユーザー')}</h4>
                             <p class="text-xs text-slate-400 font-mono mb-4">@${escapeHtml(req.senderUsername || 'username')}</p>
                         </div>
                         <div class="pt-4 border-t border-slate-800/60 flex items-center space-x-2">
@@ -535,17 +510,14 @@
             }
         }
 
-        // フレンド申請承認機能
         window.acceptFriendRequest = async function(reqId, senderUid, senderName, senderUsername) {
             try {
-                // 1. 申請ステータスを accepted に更新または削除
                 await deleteDoc(doc(db, "friendRequests", reqId));
 
-                // 2. 相互のフレンドリストに追加（自分 -> 相手、相手 -> 自分）
                 await addDoc(collection(db, "friends"), {
                     ownerUid: currentUserUid,
                     friendUid: senderUid,
-                    friendName: senderName,
+                    friendName: senderName || "ユーザー",
                     friendUsername: senderUsername || "",
                     createdAt: serverTimestamp()
                 });
@@ -553,7 +525,7 @@
                 await addDoc(collection(db, "friends"), {
                     ownerUid: senderUid,
                     friendUid: currentUserUid,
-                    friendName: currentDisplayName,
+                    friendName: currentDisplayName || "ユーザー",
                     friendUsername: currentUsername || "",
                     createdAt: serverTimestamp()
                 });
@@ -562,49 +534,4 @@
                 loadFriends();
                 loadRequests();
             } catch (error) {
-                console.error("申請承認エラー:", error);
-                showAlert("申請の承認に失敗しました。");
-            }
-        };
-
-        // フレンド申請拒否機能
-        window.rejectFriendRequest = async function(reqId) {
-            try {
-                await deleteDoc(doc(db, "friendRequests", reqId));
-                showAlert("フレンド申請を拒否しました。", false);
-                loadRequests();
-            } catch (error) {
-                console.error("申請拒否エラー:", error);
-                showAlert("申請の拒否に失敗しました。");
-            }
-        };
-
-        // フレンド削除機能
-        window.removeFriend = async function(friendDocId, friendUid) {
-            if (!confirm("本当にこのフレンドを削除しますか？")) return;
-
-            try {
-                await deleteDoc(doc(db, "friends", friendDocId));
-                
-                // 逆側のフレンドデータも削除を試みる
-                const q = query(collection(db, "friends"), where("ownerUid", "==", friendUid), where("friendUid", "==", currentUserUid));
-                const snap = await getDocs(q);
-                snap.forEach(async (d) => {
-                    await deleteDoc(doc(db, "friends", d.id));
-                });
-
-                showAlert("フレンドを削除しました。", false);
-                loadFriends();
-            } catch (error) {
-                console.error("フレンド削除エラー:", error);
-                showAlert("フレンドの削除に失敗しました。");
-            }
-        };
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
-    </script>
-</body>
-</html>
+                console.er
