@@ -45,8 +45,8 @@
 
         <form onsubmit="handleLogin(event)" class="space-y-4">
             <div>
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">メールアドレス</label>
-                <input type="email" id="login-email" required placeholder="name@example.com" 
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">メールアドレス または ユーザー名</label>
+                <input type="text" id="login-identifier" required placeholder="name@example.com または ユーザー名" 
                     class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 input-focus outline-none">
             </div>
             <div>
@@ -79,6 +79,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBleGBlEcKLXIpbG3QX5U-PKn5r6LyelrM",
@@ -92,6 +93,7 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
         function showAlert(message, isError = true) {
             const box = document.getElementById('alert-box');
@@ -104,11 +106,11 @@
             document.getElementById('alert-box').classList.add('hidden');
         }
 
-        // ログイン処理
+        // ログイン処理（メールアドレス、またはユーザー名でのログインに対応）
         window.handleLogin = async function(event) {
             event.preventDefault();
             hideAlert();
-            const email = document.getElementById('login-email').value;
+            const identifier = document.getElementById('login-identifier').value.trim();
             const password = document.getElementById('login-password').value;
             const btn = document.getElementById('login-submit-btn');
 
@@ -116,13 +118,32 @@
             btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ログイン中...`;
 
             try {
-                await signInWithEmailAndPassword(auth, email, password);
+                let emailToUse = identifier;
+
+                // 入力値に '@' が含まれていない場合は「ユーザー名」とみなし、Firestoreからメールアドレスを検索する
+                if (!identifier.includes('@')) {
+                    const usersRef = collection(db, "users");
+                    const q = query(usersRef, where("username", "==", identifier));
+                    const querySnapshot = await getDocs(q);
+
+                    if (querySnapshot.empty) {
+                        throw new Error("指定されたユーザー名は存在しません。");
+                    }
+
+                    // 該当するユーザーのメールアドレスを取得
+                    const userData = querySnapshot.docs[0].data();
+                    emailToUse = userData.email;
+                }
+
+                // 取得したメールアドレスとパスワードでFirebase Authentication認証を実行
+                await signInWithEmailAndPassword(auth, emailToUse, password);
+                
                 showAlert("ログインに成功しました。リダイレクト中...", false);
                 setTimeout(() => {
-                    window.location.href = "/dashboard"; 
+                    window.location.href = "../dashboard/index.html"; 
                 }, 1000);
             } catch (error) {
-                showAlert("エラー: メールアドレスまたはパスワードが正しくありません。");
+                showAlert("エラー: 入力内容またはパスワードが正しくありません。");
                 btn.disabled = false;
                 btn.innerHTML = `<span>サインイン</span>`;
             }
@@ -133,7 +154,7 @@
             document.body.style.opacity = '0';
             document.body.style.transition = 'opacity 0.25s ease-in-out';
             setTimeout(() => {
-                window.location.href = "/signup";
+                window.location.href = "../signup/index.html";
             }, 250);
         };
     </script>
