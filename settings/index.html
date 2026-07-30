@@ -28,14 +28,6 @@
         #sidebar {
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        /* スイッチのスタイル */
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: #38bdf8;
-        }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #0284c7;
-        }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white relative overflow-x-hidden">
@@ -131,11 +123,10 @@
             <div class="relative z-10">
                 <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold mb-3">
                     <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                    <span>Preferences Active</span>
+                    <span>Cloud Sync Active</span>
                 </div>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">システム設定 / Settings</h2>
-                <p class="text-xs sm:text-sm text-slate-400 font-medium">アプリケーションの動作環境、通知、およびアカウントのカスタマイズを行います。</p>
-                <p class="text-[11px] text-cyan-400/80 font-mono tracking-wide mt-1 uppercase">Configure system preferences and application behavior.</p>
+                <p class="text-xs sm:text-sm text-slate-400 font-medium">クラウド同期設定と会員情報の変更を行います。</p>
             </div>
         </div>
 
@@ -145,12 +136,43 @@
 
             <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800/80 space-y-6">
                 <div class="flex items-center space-x-3 pb-4 border-b border-slate-800/80">
+                    <div class="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">会員情報の変更 / Account Info</h3>
+                        <p class="text-[11px] text-slate-400 font-mono">表示名や固有のユーザー名を変更できます。</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">表示名 (Display Name)</label>
+                        <input type="text" id="input-displayname" placeholder="例: ヤマダ タロウ" 
+                            class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">ユーザー名 (Username)</label>
+                        <input type="text" id="input-username" placeholder="例: yamada123" 
+                            class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400">
+                        <p class="text-[10px] text-slate-500 mt-1 font-mono">※フレンド検索に使用される一意のIDです。</p>
+                    </div>
+                    <div class="flex justify-end pt-2">
+                        <button onclick="saveAccountInfo()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-2.5 px-6 rounded-xl text-xs transition-all">
+                            会員情報を更新する
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800/80 space-y-6">
+                <div class="flex items-center space-x-3 pb-4 border-b border-slate-800/80">
                     <div class="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                     </div>
                     <div>
                         <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">動作設定 / General Preferences</h3>
-                        <p class="text-[11px] text-slate-400 font-mono">チャットや通知、表示に関する基本設定です。</p>
+                        <p class="text-[11px] text-slate-400 font-mono">Firestore (settingsコレクション) に保存され全ページに反映されます。</p>
                     </div>
                 </div>
 
@@ -158,7 +180,7 @@
                     <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
                         <div>
                             <h4 class="text-xs font-bold text-white mb-0.5">メッセージ通知音 / Sound Effects</h4>
-                            <p class="text-[11px] text-slate-400">新着チャットやフレンド申請受信時にサウンドを再生します。</p>
+                            <p class="text-[11px] text-slate-400">新着チャット受信時にサウンドを再生します。</p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="setting-sound" class="sr-only peer" checked>
@@ -169,7 +191,7 @@
                     <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
                         <div>
                             <h4 class="text-xs font-bold text-white mb-0.5">デスクトップ通知 / Desktop Alerts</h4>
-                            <p class="text-[11px] text-slate-400">バックグラウンドでの新着メッセージをブラウザ通知でお知らせします。</p>
+                            <p class="text-[11px] text-slate-400">ブラウザ通知でお知らせします。</p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="setting-desktop-notif" class="sr-only peer">
@@ -180,7 +202,7 @@
                     <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
                         <div>
                             <h4 class="text-xs font-bold text-white mb-0.5">チャット自動スクロール / Auto Scroll</h4>
-                            <p class="text-[11px] text-slate-400">新しいメッセージを受信した際、自動的に最下部へスクロールします。</p>
+                            <p class="text-[11px] text-slate-400">新しいメッセージ時に最下部へスクロールします。</p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="setting-autoscroll" class="sr-only peer" checked>
@@ -190,73 +212,9 @@
                 </div>
             </div>
 
-            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800/80 space-y-6">
-                <div class="flex items-center space-x-3 pb-4 border-b border-slate-800/80">
-                    <div class="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 73l3.293-3.293a1 1 0 011.414 0l2 2a1 1 0 010 1.414l-9 9a1 1 0 01-.707.293H7v-2.586a1 1 0 01.293-.707l7-7z"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">外観・テーマ / Appearance</h3>
-                        <p class="text-[11px] text-slate-400 font-mono">Voton caxt のビジュアルスタイルをカスタマイズします。</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div onclick="setTheme('dark')" id="theme-dark-card" class="glass-panel p-4 rounded-2xl border border-cyan-500/40 bg-cyan-500/10 cursor-pointer text-center space-y-2 card-hover">
-                        <div class="w-8 h-8 rounded-full bg-slate-950 border border-slate-700 mx-auto flex items-center justify-center text-cyan-400 font-bold">🌙</div>
-                        <h4 class="text-xs font-bold text-white">ディープナイト</h4>
-                        <p class="text-[10px] text-slate-400">超ダーク＆ネオンシアン</p>
-                    </div>
-                    <div onclick="setTheme('midnight')" id="theme-midnight-card" class="glass-panel p-4 rounded-2xl border border-slate-800 cursor-pointer text-center space-y-2 card-hover">
-                        <div class="w-8 h-8 rounded-full bg-slate-900 border border-indigo-500/40 mx-auto flex items-center justify-center text-indigo-400 font-bold">🌌</div>
-                        <h4 class="text-xs font-bold text-slate-300">ミッドナイトブルー</h4>
-                        <p class="text-[10px] text-slate-500">深みのあるインディゴ調</p>
-                    </div>
-                    <div onclick="setTheme('cyber')" id="theme-cyber-card" class="glass-panel p-4 rounded-2xl border border-slate-800 cursor-pointer text-center space-y-2 card-hover">
-                        <div class="w-8 h-8 rounded-full bg-slate-900 border border-pink-500/40 mx-auto flex items-center justify-center text-pink-400 font-bold">⚡</div>
-                        <h4 class="text-xs font-bold text-slate-300">サイバーパンク</h4>
-                        <p class="text-[10px] text-slate-500">ネオンピンクアクセント</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800/80 space-y-6">
-                <div class="flex items-center space-x-3 pb-4 border-b border-slate-800/80">
-                    <div class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">システム・データ / System Info</h3>
-                        <p class="text-[11px] text-slate-400 font-mono">アプリケーションのバージョン情報とストレージ管理です。</p>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
-                        <div>
-                            <h4 class="text-xs font-bold text-white mb-0.5">アプリケーションバージョン / Version</h4>
-                            <p class="text-[11px] text-cyan-400 font-mono">Voton caxt v2.4.0 (Production)</p>
-                        </div>
-                        <button onclick="checkUpdates()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition-all">
-                            更新を確認
-                        </button>
-                    </div>
-
-                    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
-                        <div>
-                            <h4 class="text-xs font-bold text-white mb-0.5">ローカルキャッシュクリア / Clear Cache</h4>
-                            <p class="text-[11px] text-slate-400">一時保存されているキャッシュデータをクリアし、動作をリフレッシュします。</p>
-                        </div>
-                        <button onclick="clearLocalStorageCache()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-bold transition-all">
-                            キャッシュ削除
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             <div class="flex justify-end pt-2">
-                <button onclick="saveSettings()" class="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold py-3.5 px-8 rounded-2xl shadow-xl shadow-cyan-500/20 transition-all text-xs tracking-wider uppercase">
-                    設定を保存する / Save Settings
+                <button onclick="saveAllSettings()" class="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold py-3.5 px-8 rounded-2xl shadow-xl shadow-cyan-500/20 transition-all text-xs tracking-wider uppercase">
+                    設定をクラウドに保存する / Save Settings
                 </button>
             </div>
 
@@ -267,7 +225,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBleGBlEcKLXIpbG3QX5U-PKn5r6LyelrM",
@@ -283,11 +241,12 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        let currentUserUid = null;
+
         window.toggleSidebar = function() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
             const isOpen = sidebar.style.transform === 'translateX(0px)';
-
             if (isOpen) {
                 sidebar.style.transform = 'translateX(-100%)';
                 overlay.classList.add('hidden');
@@ -310,8 +269,10 @@
                 window.location.href = "../login/";
                 return;
             }
+            currentUserUid = user.uid;
 
             try {
+                // 1. ユーザー情報（会員情報）の取得
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
@@ -322,19 +283,22 @@
                     document.getElementById('sidebar-displayname').textContent = displayName;
                     document.getElementById('sidebar-email').textContent = user.email;
                     document.getElementById('sidebar-avatar-initial').textContent = displayName.charAt(0).toUpperCase();
-                } else {
-                    document.getElementById('user-displayname').textContent = user.email;
-                    document.getElementById('user-email').textContent = user.email;
-                    document.getElementById('sidebar-displayname').textContent = user.email;
-                    document.getElementById('sidebar-email').textContent = user.email;
-                    document.getElementById('sidebar-avatar-initial').textContent = user.email.charAt(0).toUpperCase();
+
+                    document.getElementById('input-displayname').value = userData.displayName || "";
+                    document.getElementById('input-username').value = userData.username || "";
+                }
+
+                // 2. 設定情報（settingsコレクション）の取得
+                const settingsDoc = await getDoc(doc(db, "settings", user.uid));
+                if (settingsDoc.exists()) {
+                    const settingsData = settingsDoc.data();
+                    if (settingsData.sound !== undefined) document.getElementById('setting-sound').checked = settingsData.sound;
+                    if (settingsData.desktopNotif !== undefined) document.getElementById('setting-desktop-notif').checked = settingsData.desktopNotif;
+                    if (settingsData.autoscroll !== undefined) document.getElementById('setting-autoscroll').checked = settingsData.autoscroll;
                 }
             } catch (error) {
-                console.error("ユーザー情報の取得に失敗しました:", error);
+                console.error("データ取得エラー:", error);
             }
-
-            // ローカルストレージから設定を復元
-            loadSavedPreferences();
         });
 
         window.handleLogout = async function() {
@@ -346,51 +310,48 @@
             }
         };
 
-        window.setTheme = function(themeName) {
-            ['dark', 'midnight', 'cyber'].forEach(t => {
-                const card = document.getElementById(`theme-${t}-card`);
-                card.className = "glass-panel p-4 rounded-2xl border border-slate-800 cursor-pointer text-center space-y-2 card-hover";
-            });
-            const activeCard = document.getElementById(`theme-${themeName}-card`);
-            activeCard.className = "glass-panel p-4 rounded-2xl border border-cyan-500/40 bg-cyan-500/10 cursor-pointer text-center space-y-2 card-hover";
-            localStorage.setItem('voton_theme', themeName);
+        // 会員情報の更新
+        window.saveAccountInfo = async function() {
+            const newDisplayName = document.getElementById('input-displayname').value.trim();
+            const newUsername = document.getElementById('input-username').value.trim();
+
+            if (!newDisplayName || !newUsername) {
+                showAlert("エラー: 表示名とユーザー名は空にできません。", true);
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, "users", currentUserUid), {
+                    displayName: newDisplayName,
+                    username: newUsername
+                });
+                showAlert("会員情報を正常に更新しました！", false);
+                setTimeout(() => location.reload(), 1000);
+            } catch (error) {
+                console.error("会員情報更新エラー:", error);
+                showAlert("エラー: 会員情報の更新に失敗しました。", true);
+            }
         };
 
-        function loadSavedPreferences() {
-            const sound = localStorage.getItem('voton_sound');
-            if (sound !== null) document.getElementById('setting-sound').checked = sound === 'true';
-
-            const desktop = localStorage.getItem('voton_desktop');
-            if (desktop !== null) document.getElementById('setting-desktop-notif').checked = desktop === 'true';
-
-            const autoscroll = localStorage.getItem('voton_autoscroll');
-            if (autoscroll !== null) document.getElementById('setting-autoscroll').checked = autoscroll === 'true';
-
-            const theme = localStorage.getItem('voton_theme') || 'dark';
-            setTheme(theme);
-        }
-
-        window.saveSettings = function() {
+        // アプリ設定を Firestore の `settings` コレクションに保存
+        window.saveAllSettings = async function() {
             const sound = document.getElementById('setting-sound').checked;
-            const desktop = document.getElementById('setting-desktop-notif').checked;
+            const desktopNotif = document.getElementById('setting-desktop-notif').checked;
             const autoscroll = document.getElementById('setting-autoscroll').checked;
 
-            localStorage.setItem('voton_sound', sound);
-            localStorage.setItem('voton_desktop', desktop);
-            localStorage.setItem('voton_autoscroll', autoscroll);
+            try {
+                // ドキュメントIDをログインユーザーのUIDにして保存
+                await setDoc(doc(db, "settings", currentUserUid), {
+                    sound: sound,
+                    desktopNotif: desktopNotif,
+                    autoscroll: autoscroll,
+                    updatedAt: new Date()
+                }, { merge: true });
 
-            showAlert("設定を正常に保存しました！", false);
-        };
-
-        window.checkUpdates = function() {
-            showAlert("お使いのシステムは最新バージョン (v2.4.0) です。", false);
-        };
-
-        window.clearLocalStorageCache = function() {
-            if (confirm("ローカルキャッシュを削除しますか？ アプリケーションの設定が初期化されます。")) {
-                localStorage.clear();
-                showAlert("キャッシュをクリアしました。ページを再読み込みします...", false);
-                setTimeout(() => { location.reload(); }, 1500);
+                showAlert("設定をFirestoreのsettingsに保存しました！他のページでも反映されます。", false);
+            } catch (error) {
+                console.error("設定保存エラー:", error);
+                showAlert("エラー: 設定の保存に失敗しました。", true);
             }
         };
     </script>
