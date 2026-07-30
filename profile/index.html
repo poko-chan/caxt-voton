@@ -122,20 +122,21 @@
             <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
             <div class="relative z-10 shrink-0">
-                <div id="avatar-preview-container" class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-cyan-500 to-indigo-600 border-2 border-cyan-400/50 flex items-center justify-center text-white font-extrabold text-3xl shadow-2xl shadow-cyan-500/30 overflow-hidden">
+                <div id="avatar-preview-container" class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-cyan-500 to-indigo-600 border-2 border-cyan-400/50 flex items-center justify-center text-white font-extrabold text-3xl shadow-2xl shadow-cyan-500/30 overflow-hidden relative group">
                     <span id="avatar-initial">U</span>
                     <img id="avatar-img" src="" alt="Avatar" class="w-full h-full object-cover hidden">
                 </div>
             </div>
 
-            <div class="relative z-10 text-center md:text-left flex-1">
-                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold mb-2">
+            <div class="relative z-10 text-center md:text-left flex-1 space-y-1">
+                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold mb-1">
                     <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
                     <span>Profile Active</span>
                 </div>
                 <h2 id="profile-card-name" class="text-2xl font-extrabold text-white tracking-tight">読み込み中...</h2>
-                <p id="profile-card-username" class="text-xs text-cyan-400 font-mono mb-2">@username</p>
-                <p id="profile-card-bio" class="text-xs text-slate-300 italic">ステータスや自己紹介がここに表示されます...</p>
+                <p id="profile-card-username" class="text-xs text-cyan-400 font-mono">@username</p>
+                <p id="profile-card-bio" class="text-xs text-slate-300 italic pt-1">ステータスや自己紹介がここに表示されます...</p>
+                <div id="profile-card-tags" class="flex flex-wrap justify-center md:justify-start gap-1.5 pt-2"></div>
             </div>
         </div>
 
@@ -148,35 +149,58 @@
                 </div>
                 <div>
                     <h3 class="text-sm font-extrabold text-white uppercase tracking-wider">プロフィール編集 / Edit Profile</h3>
-                    <p class="text-[11px] text-slate-400 font-mono">アバター画像、ステータス、名前を変更して公開できます。</p>
+                    <p class="text-[11px] text-slate-400 font-mono">アイコン画像ファイルの選択、ステータス、追加項目の編集を行います。</p>
                 </div>
             </div>
 
             <form onsubmit="handleSaveProfile(event)" class="space-y-5">
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">表示名 (Display Name)</label>
-                    <input type="text" id="input-displayname" required placeholder="例: ヤマダ タロウ" 
-                        class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">画像ファイルを選択 (Upload Image)</label>
+                        <input type="file" id="input-image-file" accept="image/*" onchange="handleImageFileSelect(event)"
+                            class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-slate-300 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-cyan-500/10 file:text-cyan-400 hover:file:bg-cyan-500/20 cursor-pointer">
+                        <p class="text-[10px] text-slate-500 mt-1 font-mono">※JPEG, PNG等（自動的に圧縮してFirestoreに保存します）</p>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">または 画像 URL (Image URL)</label>
+                        <input type="url" id="input-avatar" placeholder="https://example.com/avatar.png" oninput="previewAvatarUrl(this.value)"
+                            class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400">
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">固有ユーザー名 (Username)</label>
-                    <input type="text" id="input-username" required placeholder="例: yamada123" 
-                        class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400">
-                    <p class="text-[10px] text-slate-500 mt-1 font-mono">※フレンド検索で使われる一意のIDです。</p>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">表示名 (Display Name)</label>
+                        <input type="text" id="input-displayname" required placeholder="例: ヤマダ タロウ" 
+                            class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400">
+                    </div>
 
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">プロフィール画像 URL (Avatar Image URL)</label>
-                    <input type="url" id="input-avatar" placeholder="https://example.com/avatar.png" 
-                        class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400">
-                    <p class="text-[10px] text-slate-500 mt-1 font-mono">※画像ファイルの直リンクURL（PNG, JPG等）を入力してください。</p>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">固有ユーザー名 (Username)</label>
+                        <input type="text" id="input-username" required placeholder="例: yamada123" 
+                            class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400">
+                    </div>
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">ステータスメッセージ / Bio</label>
-                    <textarea id="input-bio" rows="3" placeholder="例: チャット仲間募集中！よろしくお願いします。" 
+                    <textarea id="input-bio" rows="2" placeholder="例: チャット仲間募集中！よろしくお願いします。" 
                         class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400 resize-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">趣味・タグ (Tags)</label>
+                        <input type="text" id="input-tags" placeholder="例: 雑談, ゲーム, プログラミング (カンマ区切り)" 
+                            class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">ウェブサイト / SNSリンク (Website)</label>
+                        <input type="url" id="input-website" placeholder="https://x.com/your_account" 
+                            class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400">
+                    </div>
                 </div>
 
                 <div class="flex justify-end pt-3">
@@ -209,6 +233,7 @@
         const db = getFirestore(app);
 
         let currentUserUid = null;
+        let selectedBase64Image = null; // アップロード用に一時保持するBase64画像データ
 
         window.toggleSidebar = function() {
             const sidebar = document.getElementById('sidebar');
@@ -231,6 +256,67 @@
             setTimeout(() => { box.classList.add('hidden'); }, 5000);
         }
 
+        // 画像ファイル選択時にBase64に変換し、プレビューを表示する
+        window.handleImageFileSelect = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 1024 * 1024 * 2) { // 2MB制限
+                showAlert("エラー: 画像サイズが大きすぎます（2MB以下にしてください）。", true);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // 画像を縮小してBase64容量を軽量化する処理
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 300;
+                    const MAX_HEIGHT = 300;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    selectedBase64Image = canvas.toDataURL('image/jpeg', 0.85);
+                    
+                    // プレビュー即時反映
+                    document.getElementById('avatar-img').src = selectedBase64Image;
+                    document.getElementById('avatar-img').classList.remove('hidden');
+                    document.getElementById('avatar-initial').classList.add('hidden');
+                    document.getElementById('input-avatar').value = ""; // URL入力欄はクリア
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.previewAvatarUrl = function(url) {
+            if (!url) return;
+            selectedBase64Image = null; // URLが優先される場合はリセット
+            const imgEl = document.getElementById('avatar-img');
+            const initialEl = document.getElementById('avatar-initial');
+            imgEl.src = url;
+            imgEl.classList.remove('hidden');
+            initialEl.classList.add('hidden');
+        };
+
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = "../login/";
@@ -246,6 +332,8 @@
                     const username = data.username || "username";
                     const bio = data.bio || "ステータスや自己紹介がここに表示されます...";
                     const avatarUrl = data.avatarUrl || "";
+                    const tags = data.tags || "";
+                    const website = data.website || "";
 
                     // ナビ・サイドバー反映
                     document.getElementById('user-displayname').textContent = displayName;
@@ -259,11 +347,28 @@
                     document.getElementById('profile-card-username').textContent = `@${username}`;
                     document.getElementById('profile-card-bio').textContent = bio;
 
+                    // タグのレンダリング
+                    const tagsContainer = document.getElementById('profile-card-tags');
+                    tagsContainer.innerHTML = "";
+                    if (tags) {
+                        tags.split(',').forEach(tag => {
+                            const trimmed = tag.trim();
+                            if (trimmed) {
+                                const badge = document.createElement('span');
+                                badge.className = "px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-[10px] font-medium";
+                                badge.textContent = `#${trimmed}`;
+                                tagsContainer.appendChild(badge);
+                            }
+                        });
+                    }
+
                     // フォーム反映
                     document.getElementById('input-displayname').value = displayName;
                     document.getElementById('input-username').value = username;
                     document.getElementById('input-bio').value = data.bio || "";
-                    document.getElementById('input-avatar').value = avatarUrl;
+                    document.getElementById('input-avatar').value = avatarUrl.startsWith('data:') ? "" : avatarUrl;
+                    document.getElementById('input-tags').value = tags;
+                    document.getElementById('input-website').value = website;
 
                     // アバター画像反映
                     const imgEl = document.getElementById('avatar-img');
@@ -298,22 +403,29 @@
             const displayName = document.getElementById('input-displayname').value.trim();
             const username = document.getElementById('input-username').value.trim();
             const bio = document.getElementById('input-bio').value.trim();
-            const avatarUrl = document.getElementById('input-avatar').value.trim();
+            const urlInput = document.getElementById('input-avatar').value.trim();
+            const tags = document.getElementById('input-tags').value.trim();
+            const website = document.getElementById('input-website').value.trim();
             const btn = document.getElementById('profile-submit-btn');
 
             btn.disabled = true;
             btn.textContent = "保存中...";
+
+            // 保存する画像URL（選択されたファイルがあればBase64、なければURL入力欄の値）
+            const finalAvatarUrl = selectedBase64Image || urlInput || "";
 
             try {
                 await updateDoc(doc(db, "users", currentUserUid), {
                     displayName: displayName,
                     username: username,
                     bio: bio,
-                    avatarUrl: avatarUrl,
+                    avatarUrl: finalAvatarUrl,
+                    tags: tags,
+                    website: website,
                     updatedAt: new Date()
                 });
 
-                showAlert("プロフィールを正常に保存しました！", false);
+                showAlert("プロフィールをクラウドに正常に保存しました！", false);
                 setTimeout(() => location.reload(), 1200);
             } catch (error) {
                 console.error("プロフィール保存エラー:", error);
